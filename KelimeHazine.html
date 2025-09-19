@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelime Hazine Sandığı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+         body {
+             font-family: 'Arial', sans-serif;
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             min-height: 100vh;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             overflow: hidden;
+             touch-action: manipulation;
+             -webkit-touch-callout: none;
+             -webkit-user-select: none;
+             -khtml-user-select: none;
+             -moz-user-select: none;
+             -ms-user-select: none;
+             user-select: none;
+         }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .game-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .game-title {
+            color: #fff;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .score-board {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .score {
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .treasure-chest {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 200px;
+            background-image: url('Hazine2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow: visible;
+        }
+
+        .treasure-chest.open {
+            background-image: url('Hazine1.png');
+            animation: chestOpen 0.8s ease-in-out;
+        }
+
+        .treasure-content {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 140px;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-end;
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .collected-word {
+            background: linear-gradient(145deg, #FFD700, #FFA500);
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+            border: 2px solid #FFA500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: wordCollect 0.5s ease-in;
+        }
+
+        @keyframes wordCollect {
+            0% { 
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .treasure-chest:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .treasure-chest.locked {
+            background-image: url('Hazine3.png');
+            animation: chestShake 0.5s ease-in-out;
+        }
+
+        @keyframes chestShake {
+            0% { transform: translateX(-50%) translateX(0px); }
+            25% { transform: translateX(-50%) translateX(-5px); }
+            75% { transform: translateX(-50%) translateX(5px); }
+            100% { transform: translateX(-50%) translateX(0px); }
+        }
+
+        .definition-box {
+            position: absolute;
+            bottom: 280px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 3px solid #FFD700;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .definition-text {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .word-coins {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+         .word-coin {
+             position: absolute;
+             width: 80px;
+             height: 80px;
+             background: linear-gradient(145deg, #FFD700, #FFA500);
+             border-radius: 50%;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             font-weight: bold;
+             font-size: 0.9em;
+             color: #333;
+             cursor: grab;
+             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+             transition: all 0.3s ease;
+             border: 3px solid #FFA500;
+             text-align: center;
+             line-height: 1.2;
+             padding: 5px;
+             touch-action: none;
+             user-select: none;
+             -webkit-user-select: none;
+             -moz-user-select: none;
+             -ms-user-select: none;
+         }
+
+         .word-coin:hover {
+             transform: scale(1.1);
+             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+         }
+
+         @media (hover: none) {
+             .word-coin:hover {
+                 transform: none;
+                 box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+             }
+         }
+
+        .word-coin:active {
+            cursor: grabbing;
+        }
+
+         .word-coin.dragging {
+             opacity: 0.8;
+             transform: scale(1.2);
+             z-index: 1000;
+         }
+
+         .word-coin.touching {
+             opacity: 0.8;
+             transform: scale(1.2);
+             z-index: 1000;
+         }
+
+        .word-coin.correct {
+            animation: correctAnswer 1s ease-in-out;
+        }
+
+        .word-coin.wrong {
+            animation: wrongAnswer 0.5s ease-in-out;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .final-score {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2); }
+        }
+
+        @keyframes chestOpen {
+            0% { 
+                transform: translateX(-50%) scale(1); 
+            }
+            30% { 
+                transform: translateX(-50%) scale(1.05); 
+            }
+            70% { 
+                transform: translateX(-50%) scale(1.1); 
+            }
+            100% { 
+                transform: translateX(-50%) scale(1); 
+            }
+        }
+
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); background: #4CAF50; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes wrongAnswer {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .timer-text {
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .timer.warning {
+            background: rgba(255,0,0,0.3);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .star {
+            position: absolute;
+            color: #FFD700;
+            font-size: 2em;
+            animation: starExplosion 1.5s ease-out forwards;
+        }
+
+        @keyframes starExplosion {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+
+        .start-content {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+        }
+
+        .start-title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .start-description {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .start-btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .settings-section {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .settings-section label {
+            display: block;
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .time-select {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .time-select:hover {
+            border-color: #764ba2;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .time-select:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
+        }
+
+        .coin-fly-animation {
+            animation: coinFly 1s ease-in forwards;
+        }
+
+        @keyframes coinFly {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.8);
+            }
+            100% {
+                transform: scale(0) translateY(-50px);
+                opacity: 0;
+            }
+        }
+
+        .teacher-signature {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .signature-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .signature-content:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .signature-title {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .signature-name {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+         .game-over-content h2 small {
+             display: block;
+             font-size: 0.7em;
+             color: #666;
+             margin-top: 10px;
+             line-height: 1.4;
+             font-weight: normal;
+         }
+
+         .project-info {
+             position: absolute;
+             bottom: 20px;
+             left: 20px;
+             z-index: 100;
+         }
+
+         .project-content {
+             background: rgba(255, 255, 255, 0.9);
+             padding: 10px 15px;
+             border-radius: 10px;
+             box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
+             backdrop-filter: blur(8px);
+             border: 1px solid rgba(102, 126, 234, 0.2);
+             text-align: left;
+             transition: all 0.3s ease;
+         }
+
+         .project-content:hover {
+             transform: scale(1.02);
+             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+             border-color: rgba(102, 126, 234, 0.3);
+         }
+
+         .project-text {
+             font-size: 11px;
+             color: #333;
+             font-weight: 500;
+             line-height: 1.3;
+             margin: 0;
+         }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Kelime Hazine Sandığı</h1>
+            <div class="score-board">
+                <div class="score">Puan: <span id="score">0</span></div>
+            </div>
+        </div>
+
+        <div class="timer">
+            <div class="timer-text">⏰ <span id="timer">60</span>s</div>
+        </div>
+
+        <div class="definition-box">
+            <div class="definition-text" id="current-definition">
+                Ayakla oynanan top oyunu
+            </div>
+        </div>
+
+        <div class="treasure-chest" id="treasure-chest">
+            <div class="treasure-content" id="treasure-content">
+                <!-- Toplanan kelimeler burada görünecek -->
+            </div>
+        </div>
+
+        <div class="word-coins" id="word-coins">
+            <!-- Kelime paraları JavaScript ile eklenecek -->
+        </div>
+
+        <div class="start-screen" id="start-screen">
+            <div class="start-content">
+                <h1 class="start-title">Kelime Hazine Sandığı</h1>
+                <p class="start-description">
+                    Hazine sandığının üzerindeki tanıma uygun kelime parasını sürükleyip sandığa bırakın!<br>
+                    Doğru cevaplarla puan kazanın ve hazineyi toplayın! ⭐
+                </p>
+                
+                <div class="settings-section">
+                    <label for="game-time">⏰ Oyun Süresi:</label>
+                    <select id="game-time" class="time-select">
+                        <option value="60">1 Dakika</option>
+                        <option value="120">2 Dakika</option>
+                        <option value="180">3 Dakika</option>
+                        <option value="300">5 Dakika</option>
+                    </select>
+                </div>
+                
+                <button class="start-btn" onclick="startGame()">🎮 Oyunu Başlat</button>
+            </div>
+        </div>
+
+        <div class="game-over" id="game-over">
+            <div class="game-over-content">
+                <h2 id="game-over-title">🎉 Oyun Bitti! 🎉</h2>
+                <div class="final-score">Final Puanınız: <span id="final-score">0</span></div>
+                <button class="restart-btn" onclick="restartGame()">🔄 Tekrar Oyna</button>
+            </div>
+        </div>
+
+        <div class="stars-container" id="stars-container"></div>
+        
+         <div class="teacher-signature">
+             <div class="signature-content">
+                 <div class="signature-title">Türkçe Öğretmeni</div>
+                 <div class="signature-name">Ramazan ŞANA</div>
+             </div>
+         </div>
+
+         <div class="project-info">
+             <div class="project-content">
+                 <p class="project-text">Milli Eğitim Bakanlığı'nın Dinamik Ders Dili(D3) Projesi kapsamında geliştirilmiştir.</p>
+             </div>
+         </div>
+    </div>
+
+    <script>
+        // Oyun verileri
+        const wordData = [
+            { word: "tepük", definition: "Ayakla oynanan top oyunu" },
+            { word: "seyyah", definition: "Gezen, dolaşan kimse" },
+            { word: "medrese", definition: "İslami eğitim veren okul" },
+            { word: "himaye", definition: "Koruma, gözetim" },
+            { word: "müderris", definition: "Medresede ders veren öğretmen" },
+            { word: "avlu", definition: "Bir yapının ortasında kalan, genellikle etrafı duvarla çevrili, üstü açık alan" },
+            { word: "emin", definition: "Şüphesiz, kesin olarak inanan" },
+            { word: "kargı", definition: "Ucu sivri, uzun mızrak" },
+            { word: "takdir", definition: "Beğenme, değer verme, övme" },
+            { word: "disiplin", definition: "Sıkı düzen, kurallara bağlılık" },
+            { word: "azim", definition: "Bir işteki engelleri yenme kararlılığı" },
+            { word: "mükemmel", definition: "Kusursuz, eksiksiz, harika" },
+            { word: "âlim", definition: "Bilgin, çok bilgili kimse" },
+            { word: "ok", definition: "Yayla atılan, ucunda sivri bir demir bulunan ince ve kısa tahta çubuk" },
+            { word: "İlim", definition: "Bilim" },
+            { word: "özen göstermek", definition: "Bir şeyi özenerek elden geldiğince iyi olmasına gayret ederek yapmak; itina etmek" },
+            { word: "fidan", definition: "Yeni yetişen ağaç veya ağaççık" }
+        ];
+
+         let currentWordIndex = 0;
+         let score = 0;
+         let timeLeft = 60;
+         let gameActive = false;
+         let draggedElement = null;
+         let usedPositions = [];
+         let collectedWords = [];
+         let touchStartPos = null;
+         let touchElement = null;
+
+        // Oyunu başlat
+        function startGame() {
+            // Seçilen süreyi al
+            const selectedTime = parseInt(document.getElementById('game-time').value);
+            timeLeft = selectedTime;
+            
+            document.getElementById('start-screen').style.display = 'none';
+            initGame();
+        }
+
+        function initGame() {
+            score = 0;
+            gameActive = true;
+            // Rastgele kelime seç
+            currentWordIndex = Math.floor(Math.random() * wordData.length);
+            usedPositions = [];
+            collectedWords = [];
+            updateScore();
+            updateTimer();
+            createWordCoins();
+            showCurrentDefinition();
+            updateTreasureContent();
+            startTimer();
+        }
+
+        // Kelime paralarını oluştur
+        function createWordCoins() {
+            const container = document.getElementById('word-coins');
+            container.innerHTML = '';
+            usedPositions = [];
+            
+            // Mevcut kelimeyi hariç tutarak 10 kelime seç
+            const availableWords = wordData.filter((_, index) => index !== currentWordIndex);
+            const selectedWords = shuffleArray(availableWords).slice(0, 9);
+            selectedWords.push(wordData[currentWordIndex]); // Doğru cevabı ekle
+            const shuffledWords = shuffleArray(selectedWords);
+
+            shuffledWords.forEach((wordObj, index) => {
+                const coin = document.createElement('div');
+                coin.className = 'word-coin';
+                // İlk harfi büyük yap
+                coin.textContent = wordObj.word.charAt(0).toUpperCase() + wordObj.word.slice(1);
+                coin.draggable = true;
+                coin.dataset.word = wordObj.word;
+                
+                // Güvenli pozisyon bul
+                const position = findSafePosition();
+                coin.style.left = position.x + 'px';
+                coin.style.top = position.y + 'px';
+                
+                 // Drag olaylarını ekle
+                 coin.addEventListener('dragstart', handleDragStart);
+                 coin.addEventListener('dragend', handleDragEnd);
+                 
+                 // Touch olaylarını ekle
+                 coin.addEventListener('touchstart', handleTouchStart, { passive: false });
+                 coin.addEventListener('touchmove', handleTouchMove, { passive: false });
+                 coin.addEventListener('touchend', handleTouchEnd, { passive: false });
+                
+                container.appendChild(coin);
+            });
+        }
+
+        // Güvenli pozisyon bulma fonksiyonu
+        function findSafePosition() {
+            const coinSize = 80;
+            const margin = 20;
+            const maxAttempts = 100;
+            
+            // Yasaklı alanlar
+            const forbiddenAreas = [
+                // Sandık alanı (alt orta) - yeni boyutlar
+                { x: window.innerWidth/2 - 125, y: window.innerHeight - 300, width: 250, height: 200 },
+                 // Tanım kutusu alanı (sandığın üstü) - en uzun tanıma göre çok daha geniş alan
+                 { x: window.innerWidth/2 - 350, y: window.innerHeight - 600, width: 700, height: 250 },
+                // Üst başlık alanı
+                { x: 0, y: 0, width: window.innerWidth, height: 150 },
+                // Timer alanı (sağ üst)
+                { x: window.innerWidth - 200, y: 0, width: 200, height: 100 },
+                 // Sağ alt köşe - öğretmen adı alanı
+                 { x: window.innerWidth - 300, y: window.innerHeight - 100, width: 300, height: 100 },
+                 // Sol alt köşe - proje bilgisi alanı
+                 { x: 0, y: window.innerHeight - 80, width: 400, height: 80 }
+            ];
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const x = Math.random() * (window.innerWidth - coinSize - margin * 2) + margin;
+                const y = Math.random() * (window.innerHeight - coinSize - margin * 2) + margin;
+                
+                // Yasaklı alanları kontrol et
+                let isSafe = true;
+                for (const area of forbiddenAreas) {
+                    if (x < area.x + area.width && x + coinSize > area.x &&
+                        y < area.y + area.height && y + coinSize > area.y) {
+                        isSafe = false;
+                        break;
+                    }
+                }
+                
+                // Diğer paralarla çakışma kontrolü
+                if (isSafe) {
+                    for (const pos of usedPositions) {
+                        const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+                        if (distance < coinSize + margin) {
+                            isSafe = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (isSafe) {
+                    usedPositions.push({ x, y });
+                    return { x, y };
+                }
+            }
+            
+            // Son çare: basit rastgele pozisyon
+            const x = Math.random() * (window.innerWidth - coinSize);
+            const y = Math.random() * (window.innerHeight - coinSize);
+            usedPositions.push({ x, y });
+            return { x, y };
+        }
+
+        // Mevcut tanımı göster
+        function showCurrentDefinition() {
+            document.getElementById('current-definition').textContent = wordData[currentWordIndex].definition;
+        }
+
+        // Sandık içeriğini güncelle
+        function updateTreasureContent() {
+            const treasureContent = document.getElementById('treasure-content');
+            treasureContent.innerHTML = '';
+            
+            collectedWords.forEach((word, index) => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'collected-word';
+                wordElement.textContent = word;
+                treasureContent.appendChild(wordElement);
+            });
+        }
+
+        // Drag başlangıcı
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+         // Drag bitişi
+         function handleDragEnd(e) {
+             e.target.classList.remove('dragging');
+             draggedElement = null;
+         }
+
+         // Touch başlangıcı
+         function handleTouchStart(e) {
+             e.preventDefault();
+             const touch = e.touches[0];
+             touchElement = e.target;
+             touchStartPos = {
+                 x: touch.clientX,
+                 y: touch.clientY,
+                 elementX: parseFloat(e.target.style.left) || 0,
+                 elementY: parseFloat(e.target.style.top) || 0
+             };
+             e.target.classList.add('touching');
+         }
+
+         // Touch hareketi
+         function handleTouchMove(e) {
+             e.preventDefault();
+             if (!touchElement || !touchStartPos) return;
+             
+             const touch = e.touches[0];
+             const deltaX = touch.clientX - touchStartPos.x;
+             const deltaY = touch.clientY - touchStartPos.y;
+             
+             const newX = touchStartPos.elementX + deltaX;
+             const newY = touchStartPos.elementY + deltaY;
+             
+             touchElement.style.left = newX + 'px';
+             touchElement.style.top = newY + 'px';
+         }
+
+         // Touch bitişi
+         function handleTouchEnd(e) {
+             e.preventDefault();
+             if (!touchElement) return;
+             
+             touchElement.classList.remove('touching');
+             
+             // Sandık alanını kontrol et
+             const treasureChest = document.getElementById('treasure-chest');
+             const chestRect = treasureChest.getBoundingClientRect();
+             const elementRect = touchElement.getBoundingClientRect();
+             
+             // Element sandık üzerinde mi kontrol et
+             if (elementRect.left < chestRect.right &&
+                 elementRect.right > chestRect.left &&
+                 elementRect.top < chestRect.bottom &&
+                 elementRect.bottom > chestRect.top) {
+                 checkAnswer(touchElement);
+             }
+             
+             touchElement = null;
+             touchStartPos = null;
+         }
+
+        // Sandık üzerine bırakma
+        const treasureChest = document.getElementById('treasure-chest');
+        treasureChest.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        treasureChest.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedElement) {
+                checkAnswer(draggedElement);
+            }
+        });
+
+        // Cevabı kontrol et
+        function checkAnswer(coin) {
+            const selectedWord = coin.dataset.word;
+            const correctWord = wordData[currentWordIndex].word;
+            
+            if (selectedWord === correctWord) {
+                // Doğru cevap
+                coin.classList.add('correct');
+                coin.classList.add('coin-fly-animation');
+                score += 10;
+                updateScore();
+                
+                // Kelimeyi sandığa ekle
+                if (!collectedWords.includes(selectedWord)) {
+                    collectedWords.push(selectedWord);
+                }
+                
+                // Sandık kapağını aç
+                treasureChest.classList.add('open');
+                
+                // Yıldız patlaması efekti
+                createStarExplosion(coin);
+                
+                // Sandık içeriğini güncelle
+                setTimeout(() => {
+                    updateTreasureContent();
+                }, 800);
+                
+                // Sonraki kelimeye geç
+                setTimeout(() => {
+                    treasureChest.classList.remove('open');
+                    nextWord();
+                }, 1500);
+            } else {
+                // Yanlış cevap
+                coin.classList.add('wrong');
+                
+                // Sandığı kilitli göster
+                treasureChest.classList.add('locked');
+                
+                setTimeout(() => {
+                    coin.classList.remove('wrong');
+                    treasureChest.classList.remove('locked');
+                }, 1000);
+            }
+        }
+
+
+        // Yıldız patlaması efekti
+        function createStarExplosion(coin) {
+            const starsContainer = document.getElementById('stars-container');
+            const rect = coin.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // 8 yıldız oluştur
+            for (let i = 0; i < 8; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = '⭐';
+                
+                // Yıldızları farklı yönlere dağıt
+                const angle = (i * 45) * Math.PI / 180;
+                const distance = 100 + Math.random() * 50;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                star.style.left = x + 'px';
+                star.style.top = y + 'px';
+                
+                starsContainer.appendChild(star);
+                
+                // Animasyon bitince yıldızı kaldır
+                setTimeout(() => {
+                    if (star.parentNode) {
+                        star.parentNode.removeChild(star);
+                    }
+                }, 1500);
+            }
+        }
+
+        // Sonraki kelimeye geç
+        function nextWord() {
+            // Tüm kelimeler tamamlandı mı kontrol et
+            if (collectedWords.length >= wordData.length) {
+                // Tüm kelimeler bitti
+                endGame(true); // true = tüm kelimeler bitti
+                return;
+            }
+            
+            // Henüz tamamlanmamış kelimelerden birini seç
+            const remainingWords = wordData.filter(wordObj => !collectedWords.includes(wordObj.word));
+            if (remainingWords.length > 0) {
+                currentWordIndex = wordData.findIndex(wordObj => wordObj.word === remainingWords[0].word);
+                createWordCoins();
+                showCurrentDefinition();
+            } else {
+                // Bu durumda tüm kelimeler tamamlandı
+                endGame(true);
+            }
+        }
+
+        // Puanı güncelle
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        // Timer'ı başlat
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        // Timer'ı güncelle
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 10) {
+                document.querySelector('.timer').classList.add('warning');
+            }
+        }
+
+        // Oyunu bitir
+        function endGame(allWordsCompleted = false) {
+            gameActive = false;
+            document.getElementById('final-score').textContent = score;
+            
+            // Oyun bitiş mesajını güncelle
+            const gameOverTitle = document.getElementById('game-over-title');
+            if (allWordsCompleted) {
+                gameOverTitle.innerHTML = '🎉 Tebrikler! 🎉<br><small>Tüm kelimeleri kelime hazinenize eklediniz.<br>Oyun Bitti!</small>';
+            } else {
+                gameOverTitle.innerHTML = '🎉 Oyun Bitti! 🎉';
+            }
+            
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        // Oyunu yeniden başlat
+        function restartGame() {
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            document.querySelector('.timer').classList.remove('warning');
+            gameActive = false;
+            // Süre seçimini sıfırla
+            document.getElementById('game-time').value = '60';
+        }
+
+        // Array karıştırma fonksiyonu
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Oyun başlangıç ekranında bekliyor
+    </script>
+</body>
+</html>
